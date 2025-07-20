@@ -1,0 +1,85 @@
+<!-- src/app/components/sign-up/sign-up.component.html -->
+<div class="signup-container">
+  <div class="signup-card">
+    <h2>House Hunting - Sign Up</h2>
+    <p class="subtitle">Please enter your details below</p>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="userForm" (ngSubmit)="submitForm()" class="signup-form">
+      
+      <!-- Name Field -->
+      <div class="form-group">
+        <label for="name">Name *</label>
+        <input 
+          id="name"
+          type="text" 
+          formControlName="name" 
+          class="form-control"
+          [class.invalid]="isFieldInvalid('name')"
+          placeholder="Enter your first name"
+        />
+        <div *ngIf="isFieldInvalid('name')" class="error-text">
+          {{ getFieldError('name') }}
+        </div>
+      </div>
+
+      <!-- Surname Field -->
+      <div class="form-group">
+        <label for="surname">Surname *</label>
+        <input 
+          id="surname"
+          type="text" 
+          formControlName="surname" 
+          class="form-control"
+          [class.invalid]="isFieldInvalid('surname')"
+          placeholder="Enter your last name"
+        />
+        <div *ngIf="isFieldInvalid('surname')" class="error-text">
+          {{ getFieldError('surname') }}
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          id="email"
+          type="email" 
+          formControlName="email" 
+          class="form-control"
+          [class.invalid]="isFieldInvalid('email')"
+          placeholder="Enter your email address"
+        />
+        <div *ngIf="isFieldInvalid('email')" class="error-text">
+          {{ getFieldError('email') }}
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="submit-btn"
+        [disabled]="userForm.invalid || isLoading"
+      >
+        <span *ngIf="isLoading" class="loading-spinner"></span>
+        {{ isLoading ? 'Creating Account...' : 'Submit' }}
+      </button>
+
+      <!-- Form Debug (Remove in production) -->
+      <div class="form-debug" *ngIf="false">
+        <p>Form Valid: {{ userForm.valid }}</p>
+        <p>Form Values: {{ userForm.value | json }}</p>
+        <p>Form Status: {{ userForm.status }}</p>
+      </div>
+    </form>
+  </div>
+</div>
