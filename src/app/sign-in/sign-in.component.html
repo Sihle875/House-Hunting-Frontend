@@ -1,0 +1,114 @@
+<!-- src/app/components/sign-in/sign-in.component.html -->
+<div class="signin-container">
+  <div class="signin-card">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Sign in to continue your house hunting journey</p>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      <i class="success-icon">✓</i>
+      {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <i class="error-icon">⚠</i>
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="signInForm" (ngSubmit)="submitForm()" class="signin-form">
+      
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <div class="input-wrapper">
+          <input 
+            id="email"
+            type="email" 
+            formControlName="email" 
+            class="form-control"
+            [class.invalid]="isFieldInvalid('email')"
+            placeholder="Enter your email address"
+          />
+          <i class="input-icon email-icon">📧</i>
+        </div>
+        <div *ngIf="isFieldInvalid('email')" class="error-text">
+          {{ getFieldError('email') }}
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <div class="input-wrapper">
+          <input 
+            id="password"
+            [type]="showPassword ? 'text' : 'password'" 
+            formControlName="password" 
+            class="form-control password-input"
+            [class.invalid]="isFieldInvalid('password')"
+            placeholder="Enter your password"
+          />
+          <button 
+            type="button" 
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <i class="toggle-icon">{{ showPassword ? '👁️' : '👁️‍🗨️' }}</i>
+          </button>
+        </div>
+        <div *ngIf="isFieldInvalid('password')" class="error-text">
+          {{ getFieldError('password') }}
+        </div>
+      </div>
+
+      <!-- Forgot Password Link -->
+      <div class="forgot-password-wrapper">
+        <button 
+          type="button" 
+          class="forgot-password-link"
+          (click)="onForgotPassword()"
+        >
+          Forgot your password?
+        </button>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="submit-btn"
+        [disabled]="signInForm.invalid || isLoading"
+      >
+        <span *ngIf="isLoading" class="loading-spinner"></span>
+        <i *ngIf="!isLoading" class="signin-icon">🔑</i>
+        {{ isLoading ? 'Signing In...' : 'Sign In' }}
+      </button>
+
+      <!-- Divider -->
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <!-- Sign Up Link -->
+      <div class="signup-prompt">
+        <p>Don't have an account? 
+          <button 
+            type="button" 
+            class="signup-link"
+            (click)="navigateToSignUp()"
+          >
+            Sign up here
+          </button>
+        </p>
+      </div>
+
+      <!-- Form Debug (Remove in production) -->
+      <div class="form-debug" *ngIf="false">
+        <p>Form Valid: {{ signInForm.valid }}</p>
+        <p>Form Values: {{ signInForm.value | json }}</p>
+        <p>Form Status: {{ signInForm.status }}</p>
+      </div>
+    </form>
+  </div>
+</div>

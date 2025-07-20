@@ -64,6 +64,32 @@
         </div>
       </div>
 
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <div class="input-wrapper">
+          <input 
+            id="password"
+            [type]="showPassword ? 'text' : 'password'" 
+            formControlName="password" 
+            class="form-control password-input"
+            [class.invalid]="isFieldInvalid('password')"
+            placeholder="Enter your password"
+          />
+          <button 
+            type="button" 
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <i class="toggle-icon">{{ showPassword ? '👁️' : '👁️‍🗨️' }}</i>
+          </button>
+        </div>
+        <div *ngIf="isFieldInvalid('password')" class="error-text">
+          {{ getFieldError('password') }}
+        </div>
+      </div>
+
       <!-- Submit Button -->
       <button 
         type="submit" 
