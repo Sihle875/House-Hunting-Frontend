@@ -3,17 +3,29 @@ import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-export interface User {
+export interface SignUpRequest {
   id?: number;
   name: string;
   surname: string;
   email: string;
+  password: string;
 }
 
-export interface ApiResponse {
+export interface SignInRequest {
+  email: string;
+  password: string;
+}
+
+export interface SignUpApiResponse {
   success: boolean;
   message: string;
   data?: any
+}
+
+export interface SignInApiResponse {
+  success: boolean;
+  message: string;
+  user?: SignInRequest;
 }
 
 @Injectable({
@@ -24,8 +36,15 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  registerUser(userData: Omit<User, 'id'>): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${this.apiUrl}/register`, userData)
+  registerUser(userData: Omit<SignUpRequest, 'id'>): Observable<SignUpApiResponse> {
+    return this.http.post<SignUpApiResponse>(`${this.apiUrl}/register`, userData)
+    .pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  signInUser(creditials: SignInRequest): Observable<SignInApiResponse> {
+    return this.http.post<SignInApiResponse>(`${this.apiUrl}/login`, creditials)
     .pipe(
       catchError(this.handleError)
     );

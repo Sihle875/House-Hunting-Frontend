@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { User, UserService } from '../services/user.service';
+import { SignUpRequest, UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -16,6 +16,7 @@ export class SignUpComponent {
   isLoading = false;
   successMessage = '';
   errorMessage = '';
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder, 
@@ -25,7 +26,8 @@ export class SignUpComponent {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
       surname: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
@@ -34,7 +36,7 @@ export class SignUpComponent {
       this.isLoading = true
       this.clearMessage();
 
-      const userData: Omit<User, 'id'> = this.userForm.value
+      const userData: Omit<SignUpRequest, 'id'> = this.userForm.value
 
       this.userService.registerUser(userData)
       .subscribe({
@@ -92,5 +94,10 @@ export class SignUpComponent {
   private clearMessage() {
     this.successMessage = '';
     this.errorMessage = '';
+  }
+
+    // Toggle password visibility
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }
