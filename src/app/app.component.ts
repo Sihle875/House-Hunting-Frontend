@@ -35,6 +35,13 @@ import { Router, RouterOutlet } from '@angular/router';
             >
               Sign Up
             </button>
+            <button 
+              class="nav-btn" 
+              (click)="navigateTo('/contact')"
+              [class.active]="isCurrentRoute('/contact')"
+            >
+              Contact Us
+            </button>
           </nav>
         </div>
       </header>
