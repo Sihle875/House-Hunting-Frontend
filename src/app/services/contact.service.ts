@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { delay, Observable, of, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 
@@ -27,26 +27,15 @@ export class ContactService {
 
   constructor(private http: HttpClient) { }
 
-  // Mock API call to submit contact form
   submitContactForm(contactData: ContactRequest): Observable<ContactApiResponse> {
-    
-    // Simulating network delay and response
-    return of({
-      success: true,
-      message: 'Thank you! Your message has been sent successfully!',
-      data: contactData
-    }).pipe(
-      delay(2000), // Simulate network delay
-    );
-  }
-
-  // Real API call would look like this:
-    /*
     return this.http.post<ContactApiResponse>(`${this.apiUrl}/contact`, contactData)
-      .pipe(
+    .pipe(
         catchError(this.handleError)
       );
-    */
+  }
+
+  
+    
 
   // Error handling for real API calls
   private handleError(error: HttpErrorResponse): Observable<never> {

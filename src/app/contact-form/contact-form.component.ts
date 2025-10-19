@@ -38,7 +38,7 @@ export class ContactFormComponent {
       this.contactService.submitContactForm(this.contactForm.value).subscribe({
         next: (response) => {
           this.isSubmittingContact = false;
-          this.contactSuccessMessage = response.message || 'Thank you! We will get back to you soon.';
+          this.contactSuccessMessage = response.message;
           this.contactForm.reset();
           console.log('Contact message sent successfully', response);
 
