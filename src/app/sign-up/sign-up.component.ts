@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SignUpRequest, UserService } from '../services/user.service';
 
 @Component({
@@ -14,13 +15,13 @@ import { SignUpRequest, UserService } from '../services/user.service';
 export class SignUpComponent {
   userForm: FormGroup;
   isLoading = false;
-  successMessage = '';
   errorMessage = '';
   showPassword = false;
 
   constructor(
     private fb: FormBuilder, 
     private http: HttpClient,
+    private router: Router,
     private userService: UserService
   ) {
     this.userForm = this.fb.group({
@@ -42,9 +43,8 @@ export class SignUpComponent {
       .subscribe({
         next: response => {
           this.isLoading = false;
-          this.successMessage = response.message || 'User registered successfully';
           this.userForm.reset();
-          console.log('User has been created', response);
+          this.router.navigate(['/sign-in']);
         },
         error: error => {
           this.isLoading = false;
@@ -92,7 +92,6 @@ export class SignUpComponent {
   }
 
   private clearMessage() {
-    this.successMessage = '';
     this.errorMessage = '';
   }
 

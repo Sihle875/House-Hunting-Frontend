@@ -14,7 +14,6 @@ import { SignInRequest, UserService } from '../services/user.service';
 export class SignInComponent {
   signInForm: FormGroup;
   isLoading = false;
-  successMessage = '';
   errorMessage = '';
   showPassword = false;
 
@@ -39,9 +38,8 @@ export class SignInComponent {
       this.userService.signInUser(creditials).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.successMessage = response.message || 'Sign in successful!!!';
-      
-        console.log('User signed in successfully', response);
+        this.signInForm.reset();
+        this.router.navigate(['/home']);
       },
       error: (error) => {
         this.isLoading = false;
@@ -101,7 +99,6 @@ export class SignInComponent {
   }
 
   private clearMessage() {
-    this.successMessage = '';
     this.errorMessage = '';
   }
 

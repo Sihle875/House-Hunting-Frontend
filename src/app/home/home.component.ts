@@ -13,13 +13,9 @@ import { Property, PropertySearchRequest, PropertyService } from '../services/pr
 })
 export class HomeComponent implements OnInit {
   searchForm: FormGroup;
-  contactForm: FormGroup;
   featuredProperties: Property[] = [];
   isLoadingProperties = false;
-  isSubmittingContact = false;
   currentSlide = 0;
-  contactSuccessMessage = '';
-  contactErrorMessage = '';
 
   propertyTypes = ['Apartment', 'House', 'Studio', 'Room'];
   priceRanges = [
@@ -48,13 +44,6 @@ export class HomeComponent implements OnInit {
       propertyType: [''],
       priceRange: [''],
       bedrooms: ['']
-    });
-
-    this.contactForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
-      message: ['', Validators.required]
     });
   }
 
@@ -137,28 +126,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  submitContactForm(): void {
-    if (this.contactForm.valid) {
-      this.isSubmittingContact = true;
-      this.clearContactMessages();
-
-      this.propertyService.submitContactForm(this.contactForm.value).subscribe({
-        next: (response) => {
-          this.isSubmittingContact = false;
-          this.contactSuccessMessage = 'Thank you! We will get back to you soon.';
-          this.contactForm.reset();
-        },
-        error: (error) => {
-          this.isSubmittingContact = false;
-          this.contactErrorMessage = 'Failed to send message. Please try again.';
-          console.error('Contact form error:', error);
-        }
-      });
-    } else {
-      this.markFormGroupTouched(this.contactForm);
-    }
-  }
-
   nextSlide(): void {
     this.currentSlide = (this.currentSlide + 1) % this.featuredProperties.length;
   }
@@ -200,16 +167,6 @@ export class HomeComponent implements OnInit {
       const control = formGroup.get(key);
       control?.markAsTouched();
     });
-  }
-
-  private clearContactMessages(): void {
-    this.contactSuccessMessage = '';
-    this.contactErrorMessage = '';
-  }
-
-  isFieldInvalid(form: FormGroup, fieldName: string): boolean {
-    const field = form.get(fieldName);
-    return !!(field && field.invalid && field.touched);
   }
 
   scrollToSection(sectionId: string): void {
