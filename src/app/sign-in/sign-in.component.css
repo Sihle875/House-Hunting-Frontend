@@ -201,12 +201,6 @@
   gap: 8px;
 }
 
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
 .alert-error {
   background-color: #f8d7da;
   color: #721c24;

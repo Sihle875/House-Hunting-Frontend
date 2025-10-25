@@ -1,0 +1,148 @@
+<!-- Contact Section -->
+<section class="contact-section" id="contact">
+  <div class="container">
+    <h2>Get In Touch</h2>
+    <p class="section-subtitle">Have questions? We're here to help!</p>
+
+    <div class="contact-grid">
+      <!-- Contact Information -->
+      <div class="contact-info">
+        <h3>Contact Information</h3>
+        
+        <div class="contact-item">
+          <div class="contact-icon">📧</div>
+          <div>
+            <h4>Email</h4>
+            <p>info&#64;househunting.co.za</p>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-icon">📱</div>
+          <div>
+            <h4>Phone</h4>
+            <p>+27 21 123 4567</p>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <h4>Address</h4>
+            <p>123 Main Street<br>Cape Town, 8001<br>South Africa</p>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-icon">🕐</div>
+          <div>
+            <h4>Business Hours</h4>
+            <p>Monday - Friday: 9:00 AM - 6:00 PM<br>Saturday: 10:00 AM - 4:00 PM<br>Sunday: Closed</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="contact-form-wrapper">
+        <h3>Send Us a Message</h3>
+
+        <!-- Success Message -->
+        <div *ngIf="contactSuccessMessage" class="alert alert-success">
+          ✓ {{ contactSuccessMessage }}
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="contactErrorMessage" class="alert alert-error">
+          ⚠ {{ contactErrorMessage }}
+        </div>
+
+        <form [formGroup]="contactForm" (ngSubmit)="submitContactForm()" class="contact-form">
+          <!-- Name Field -->
+          <div class="form-group">
+            <label for="name">Name *</label>
+            <input 
+              id="name"
+              type="text" 
+              formControlName="name"
+              class="form-control"
+              [class.invalid]="isFieldInvalid(contactForm, 'name')"
+              placeholder="Enter your full name"
+            />
+            <div *ngIf="isFieldInvalid(contactForm, 'name')" class="error-text">
+              {{ getFieldError('name') }}
+            </div>
+          </div>
+
+          <!-- Email Field -->
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input 
+              id="email"
+              type="email" 
+              formControlName="email"
+              class="form-control"
+              [class.invalid]="isFieldInvalid(contactForm, 'email')"
+              placeholder="your.email@example.com"
+            />
+            <div *ngIf="isFieldInvalid(contactForm, 'email')" class="error-text">
+              {{ getFieldError('email') }}
+            </div>
+          </div>
+
+          <!-- Phone Field -->
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input 
+              id="phone"
+              type="tel" 
+              formControlName="phone"
+              class="form-control"
+              [class.invalid]="isFieldInvalid(contactForm, 'phone')"
+              placeholder="+27XXXXXXXXX or 0XXXXXXXXX"
+            />
+            <small class="helper-text">Format: +27XXXXXXXXX or 0XXXXXXXXX</small>
+            <div *ngIf="isFieldInvalid(contactForm, 'phone')" class="error-text">
+              {{ getFieldError('phone') }}
+            </div>
+          </div>
+
+          <!-- Message Field -->
+          <div class="form-group">
+            <label for="message">Message *</label>
+            <textarea 
+              id="message"
+              formControlName="message"
+              class="form-control"
+              [class.invalid]="isFieldInvalid(contactForm, 'message')"
+              placeholder="Tell us what's on your mind... (minimum 50 characters)"
+              rows="5"
+            ></textarea>
+            <div class="character-counter" 
+                 [class.insufficient]="getRemainingCharacters() > 0">
+              <span *ngIf="getRemainingCharacters() > 0">
+                {{ getRemainingCharacters() }} characters remaining
+              </span>
+              <span *ngIf="getRemainingCharacters() <= 0" class="sufficient">
+                ✓ Minimum character requirement met ({{ getMessageCharacterCount() }} characters)
+              </span>
+            </div>
+            <div *ngIf="isFieldInvalid(contactForm, 'message')" class="error-text">
+              {{ getFieldError('message') }}
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="btn-submit"
+            [disabled]="contactForm.invalid || isSubmittingContact"
+          >
+            <span *ngIf="isSubmittingContact" class="loading-spinner"></span>
+            <span *ngIf="!isSubmittingContact">📧</span>
+            {{ isSubmittingContact ? 'Sending...' : 'Send Message' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
