@@ -22,6 +22,7 @@ import { Router, RouterOutlet } from '@angular/router';
               Home
             </button>
             <button 
+              *ngIf="!isLoggedIn"
               class="nav-btn" 
               (click)="navigateTo('/sign-in')"
               [class.active]="isCurrentRoute('/sign-in')"
@@ -29,6 +30,7 @@ import { Router, RouterOutlet } from '@angular/router';
               Sign In
             </button>
             <button 
+              *ngIf="!isLoggedIn"
               class="nav-btn" 
               (click)="navigateTo('/sign-up')"
               [class.active]="isCurrentRoute('/sign-up')"
@@ -41,6 +43,13 @@ import { Router, RouterOutlet } from '@angular/router';
               [class.active]="isCurrentRoute('/contact')"
             >
               Contact Us
+            </button>
+            <button 
+              *ngIf="isLoggedIn" 
+              class="nav-btn"
+              click="logout()"
+            >
+              Logout
             </button>
           </nav>
         </div>
@@ -166,14 +175,30 @@ import { Router, RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'househunting-frontend';
+  isLoggedIn = false;
 
   constructor(private router: Router) {}
+
+  ngOnInit() {
+    this.checkLoginStatus();
+  }
+
+  checkLoginStatus() {
+    const token = localStorage.getItem('authToken');
+    this.isLoggedIn = !!token;
+  }
 
   navigateTo(route: string) {
     this.router.navigate([route]);
   }
 
   navigateHome() {
+    this.router.navigate(['/home']);
+  }
+
+  logout() {
+    localStorage.removeItem('authToken');
+    this.isLoggedIn = false;
     this.router.navigate(['/home']);
   }
 
