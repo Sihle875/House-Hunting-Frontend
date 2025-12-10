@@ -1,8 +1,11 @@
+// src/app/sign-in/sign-in.component.ts
+
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { SignInRequest, UserService } from '../services/user.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthRequest } from '../models/auth.models';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -11,16 +14,18 @@ import { SignInRequest, UserService } from '../services/user.service';
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.css'
 })
-export class SignInComponent {
+export class SignInComponent implements OnInit {
   signInForm: FormGroup;
   isLoading = false;
   errorMessage = '';
   showPassword = false;
+  returnUrl: string = '/home';
 
   constructor(
     private fb: FormBuilder,
-    private userService: UserService,
-    private router: Router
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -28,48 +33,56 @@ export class SignInComponent {
     });
   }
 
-  submitForm() {
+  ngOnInit(): void {
+    // Get return url from route parameters or default to '/home'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
+
+    // Redirect if already authenticated
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate([this.returnUrl]);
+    }
+  }
+
+  submitForm(): void {
     if (this.signInForm.valid) {
       this.isLoading = true;
       this.clearMessage();
 
-      const creditials: SignInRequest = this.signInForm.value;
+      const credentials: AuthRequest = this.signInForm.value;
 
-      this.userService.signInUser(creditials).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        this.signInForm.reset();
-        this.router.navigate(['/home']);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error.message || 'Sign in failed. Please try again.';
-        console.error('Sign in error occurred', error);
-      }
-    });
-  } else {
+      this.authService.login(credentials).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          console.log('Login successful', response);
+          
+          // Navigate to return URL or home
+          this.router.navigate([this.returnUrl]);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error.message || 'Sign in failed. Please check your credentials.';
+          console.error('Sign in error:', error);
+        }
+      });
+    } else {
       this.errorMessage = 'Please fill in all required fields correctly.';
       this.markFormGroupTouched();
     }
   }
 
-    // Toggle password visibility
-  togglePasswordVisibility() {
+  togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
-  // Navigate to sign up page
-  navigateToSignUp() {
+  navigateToSignUp(): void {
     this.router.navigate(['/sign-up']);
   }
 
-  // Helper method to check if a field has errors and is touched
   isFieldInvalid(fieldName: string): boolean {
     const field = this.signInForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
   }
 
-  // Helper method to get specific field error
   getFieldError(fieldName: string): string {
     const field = this.signInForm.get(fieldName);
     if (field && field.errors && field.touched) {
@@ -87,25 +100,24 @@ export class SignInComponent {
     return '';
   }
 
+  onForgotPassword(): void {
+    console.log('Forgot password clicked');
+    // Navigate to forgot password page
+    // this.router.navigate(['/forgot-password']);
+  }
+
   private capitalizeFirst(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  private markFormGroupTouched() {
+  private markFormGroupTouched(): void {
     Object.keys(this.signInForm.controls).forEach(key => {
       const control = this.signInForm.get(key);
       control?.markAsTouched();
     });
   }
 
-  private clearMessage() {
+  private clearMessage(): void {
     this.errorMessage = '';
-  }
-
-  onForgotPassword() {
-    // Implement forgot password logic here
-    console.log('Forgot password clicked');
-    // You can navigate to a forgot password page or show a modal
-    // this.router.navigate(['/forgot-password']);
   }
 }
