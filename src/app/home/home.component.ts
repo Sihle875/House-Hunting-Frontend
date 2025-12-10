@@ -52,6 +52,14 @@ export class HomeComponent implements OnInit {
     this.startCarouselAutoplay();
   }
 
+  navigateTo(route: string) {
+    this.router.navigate([route]);
+  }
+
+  navigateHome() {
+    this.router.navigate(['/home']);
+  }
+
   loadFeaturedProperties(): void {
     this.isLoadingProperties = true;
     this.propertyService.getFeaturedProperties().subscribe({

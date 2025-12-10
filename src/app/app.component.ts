@@ -1,7 +1,11 @@
 // src/app/app.component.ts
+
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { Observable } from 'rxjs';
+import { User } from './models/auth.models';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -21,22 +25,53 @@ import { Router, RouterOutlet } from '@angular/router';
             >
               Home
             </button>
-            <button 
-              *ngIf="!isLoggedIn"
-              class="nav-btn" 
-              (click)="navigateTo('/sign-in')"
-              [class.active]="isCurrentRoute('/sign-in')"
-            >
-              Sign In
-            </button>
-            <button 
-              *ngIf="!isLoggedIn"
-              class="nav-btn" 
-              (click)="navigateTo('/sign-up')"
-              [class.active]="isCurrentRoute('/sign-up')"
-            >
-              Sign Up
-            </button>
+
+            <!-- Show when not authenticated -->
+            <ng-container *ngIf="!(isAuthenticated$ | async)">
+              <button 
+                class="nav-btn" 
+                (click)="navigateTo('/sign-in')"
+                [class.active]="isCurrentRoute('/sign-in')"
+              >
+                Sign In
+              </button>
+              <button 
+                class="nav-btn" 
+                (click)="navigateTo('/sign-up')"
+                [class.active]="isCurrentRoute('/sign-up')"
+              >
+                Sign Up
+              </button>
+            </ng-container>
+
+            <!-- Show when authenticated -->
+            <ng-container *ngIf="isAuthenticated$ | async">
+              <button 
+                class="nav-btn" 
+                (click)="navigateTo('/dashboard')"
+                [class.active]="isCurrentRoute('/dashboard')"
+              >
+                Dashboard
+              </button>
+              <button 
+                class="nav-btn" 
+                (click)="navigateTo('/profile')"
+                [class.active]="isCurrentRoute('/profile')"
+              >
+                Profile
+              </button>
+              
+              <!-- Show admin link for admins only -->
+              <button 
+                *ngIf="hasRole('ROLE_ADMIN')"
+                class="nav-btn" 
+                (click)="navigateTo('/admin')"
+                [class.active]="isCurrentRoute('/admin')"
+              >
+                Admin
+              </button>
+            </ng-container>
+
             <button 
               class="nav-btn" 
               (click)="navigateTo('/contact')"
@@ -44,13 +79,20 @@ import { Router, RouterOutlet } from '@angular/router';
             >
               Contact Us
             </button>
+
+            <!-- Logout button when authenticated -->
             <button 
-              *ngIf="isLoggedIn" 
-              class="nav-btn"
-              click="logout()"
+              *ngIf="isAuthenticated$ | async"
+              class="nav-btn logout-btn" 
+              (click)="logout()"
             >
               Logout
             </button>
+
+            <!-- User info -->
+            <div *ngIf="currentUser$ | async as user" class="user-info">
+              <span class="user-name">{{ user.name }}</span>
+            </div>
           </nav>
         </div>
       </header>
@@ -104,6 +146,7 @@ import { Router, RouterOutlet } from '@angular/router';
     .nav-links {
       display: flex;
       gap: 1rem;
+      align-items: center;
     }
 
     .nav-btn {
@@ -128,6 +171,31 @@ import { Router, RouterOutlet } from '@angular/router';
       color: white;
     }
 
+    .logout-btn {
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+    .logout-btn:hover {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
     .main-content {
       margin-top: 70px;
       flex: 1;
@@ -149,6 +217,8 @@ import { Router, RouterOutlet } from '@angular/router';
       
       .nav-links {
         gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
       }
       
       .nav-btn {
@@ -157,7 +227,15 @@ import { Router, RouterOutlet } from '@angular/router';
       }
       
       .main-content {
-        margin-top: 120px;
+        margin-top: 150px;
+      }
+
+      .user-info {
+        padding: 0.4rem 0.8rem;
+      }
+
+      .user-name {
+        font-size: 0.8rem;
       }
     }
 
@@ -173,33 +251,35 @@ import { Router, RouterOutlet } from '@angular/router';
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'househunting-frontend';
-  isLoggedIn = false;
+  isAuthenticated$!: Observable<boolean>;
+  currentUser$!: Observable<User | null>;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-  ngOnInit() {
-    this.checkLoginStatus();
+  ngOnInit(): void {
+    this.isAuthenticated$ = this.authService.isAuthenticated$;
+    this.currentUser$ = this.authService.currentUser$;
   }
 
-  checkLoginStatus() {
-    const token = localStorage.getItem('authToken');
-    this.isLoggedIn = !!token;
-  }
-
-  navigateTo(route: string) {
+  navigateTo(route: string): void {
     this.router.navigate([route]);
   }
 
-  navigateHome() {
+  navigateHome(): void {
     this.router.navigate(['/home']);
   }
 
-  logout() {
-    localStorage.removeItem('authToken');
-    this.isLoggedIn = false;
-    this.router.navigate(['/home']);
+  logout(): void {
+    this.authService.logout();
+  }
+
+  hasRole(role: string): boolean {
+    return this.authService.hasRole(role);
   }
 
   isCurrentRoute(route: string): boolean {

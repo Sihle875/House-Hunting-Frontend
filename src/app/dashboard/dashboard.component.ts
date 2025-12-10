@@ -1,176 +1,168 @@
+// src/app/dashboard/dashboard.component.ts
+
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Property, PropertySearchRequest, PropertyService } from '../services/property.service';
+import { Observable } from 'rxjs';
+import { User } from '../models/auth.models';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
-})
-export class DashboardComponent implements OnInit {
-  searchForm: FormGroup;
-    featuredProperties: Property[] = [];
-    isLoadingProperties = false;
-    currentSlide = 0;
-  
-    propertyTypes = ['Apartment', 'House', 'Studio', 'Room'];
-    priceRanges = [
-      { label: 'Any Price', value: '' },
-      { label: 'Under R5,000', value: '0-5000' },
-      { label: 'R5,000 - R10,000', value: '5000-10000' },
-      { label: 'R10,000 - R15,000', value: '10000-15000' },
-      { label: 'R15,000+', value: '15000-999999' }
-    ];
-  
-    bedroomOptions = [
-      { label: 'Any', value: '' },
-      { label: '1+', value: '1' },
-      { label: '2+', value: '2' },
-      { label: '3+', value: '3' },
-      { label: '4+', value: '4' }
-    ];
-  
-    constructor(
-      private fb: FormBuilder,
-      private propertyService: PropertyService,
-      private router: Router
-    ) {
-      this.searchForm = this.fb.group({
-        location: ['', Validators.required],
-        propertyType: [''],
-        priceRange: [''],
-        bedrooms: ['']
-      });
+  imports: [CommonModule],
+  template: `
+    <div class="dashboard-container">
+      <div class="dashboard-card">
+        <h1>Welcome to Your Dashboard</h1>
+        
+        <div *ngIf="currentUser$ | async as user" class="user-details">
+          <h2>User Information</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Name:</label>
+              <span>{{ user.name }} {{ user.surname }}</span>
+            </div>
+            <div class="info-item">
+              <label>Email:</label>
+              <span>{{ user.email }}</span>
+            </div>
+            <div class="info-item" *ngIf="user.roles && user.roles.length > 0">
+              <label>Roles:</label>
+              <span>{{ user.roles.join(', ') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-content">
+          <h2>Your Properties</h2>
+          <p>View and manage your property listings here.</p>
+          
+          <div class="action-buttons">
+            <button class="btn-primary">View Properties</button>
+            <button class="btn-secondary">Add New Property</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .dashboard-container {
+      min-height: calc(100vh - 70px);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-  
-    ngOnInit(): void {
-      this.loadFeaturedProperties();
-      this.startCarouselAutoplay();
+
+    .dashboard-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
-  
-    loadFeaturedProperties(): void {
-      this.isLoadingProperties = true;
-      this.propertyService.getFeaturedProperties().subscribe({
-        next: (response) => {
-          this.featuredProperties = response.data || [];
-          this.isLoadingProperties = false;
-        },
-        error: (error) => {
-          console.error('Error loading featured properties:', error);
-          this.isLoadingProperties = false;
-          // Load mock data for demonstration
-          this.loadMockProperties();
-        }
-      });
+
+    h1 {
+      color: #333;
+      margin-bottom: 2rem;
+      text-align: center;
     }
-  
-    loadMockProperties(): void {
-      this.featuredProperties = [
-        {
-          id: 1,
-          title: 'Modern Downtown Apartment',
-          description: 'Spacious 2-bedroom apartment in the heart of the city',
-          price: 8500,
-          location: 'Cape Town CBD',
-          bedrooms: 2,
-          bathrooms: 2,
-          propertyType: 'Apartment',
-          imageUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
-          available: true
-        },
-        {
-          id: 2,
-          title: 'Cozy Studio Near Campus',
-          description: 'Perfect for students, close to all amenities',
-          price: 4500,
-          location: 'Observatory',
-          bedrooms: 1,
-          bathrooms: 1,
-          propertyType: 'Studio',
-          imageUrl: 'https://images.unsplash.com/photo-1502672260066-6bc35f0fc36d?w=800',
-          available: true
-        },
-        {
-          id: 3,
-          title: 'Luxury Family Home',
-          description: 'Beautiful 4-bedroom house with garden and pool',
-          price: 18000,
-          location: 'Constantia',
-          bedrooms: 4,
-          bathrooms: 3,
-          propertyType: 'House',
-          imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
-          available: true
-        }
-      ];
+
+    h2 {
+      color: #667eea;
+      margin-bottom: 1rem;
     }
-  
-    searchProperties(): void {
-      if (this.searchForm.valid) {
-        const searchCriteria: PropertySearchRequest = {
-          location: this.searchForm.value.location,
-          propertyType: this.searchForm.value.propertyType || undefined,
-          minPrice: this.getPriceRangeMin(this.searchForm.value.priceRange),
-          maxPrice: this.getPriceRangeMax(this.searchForm.value.priceRange),
-          minBedrooms: this.searchForm.value.bedrooms ? parseInt(this.searchForm.value.bedrooms) : undefined
-        };
-  
-        // Navigate to search results page with query params
-        this.router.navigate(['/properties'], { 
-          queryParams: searchCriteria 
-        });
+
+    .user-details {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .info-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .info-item {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .info-item label {
+      font-weight: 600;
+      color: #555;
+      min-width: 80px;
+    }
+
+    .info-item span {
+      color: #333;
+    }
+
+    .dashboard-content {
+      padding: 1.5rem 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-primary, .btn-secondary {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 1rem;
+      }
+
+      .dashboard-card {
+        padding: 1.5rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
       }
     }
-  
-    nextSlide(): void {
-      this.currentSlide = (this.currentSlide + 1) % this.featuredProperties.length;
-    }
-  
-    prevSlide(): void {
-      this.currentSlide = this.currentSlide === 0 
-        ? this.featuredProperties.length - 1 
-        : this.currentSlide - 1;
-    }
-  
-    goToSlide(index: number): void {
-      this.currentSlide = index;
-    }
-  
-    startCarouselAutoplay(): void {
-      setInterval(() => {
-        if (this.featuredProperties.length > 0) {
-          this.nextSlide();
-        }
-      }, 5000);
-    }
-  
-    viewPropertyDetails(propertyId: number): void {
-      this.router.navigate(['/properties', propertyId]);
-    }
-  
-    private getPriceRangeMin(range: string): number | undefined {
-      if (!range) return undefined;
-      return parseInt(range.split('-')[0]);
-    }
-  
-    private getPriceRangeMax(range: string): number | undefined {
-      if (!range) return undefined;
-      return parseInt(range.split('-')[1]);
-    }
-  
-    private markFormGroupTouched(formGroup: FormGroup): void {
-      Object.keys(formGroup.controls).forEach(key => {
-        const control = formGroup.get(key);
-        control?.markAsTouched();
-      });
-    }
-  
-    scrollToSection(sectionId: string): void {
-      const element = document.getElementById(sectionId);
-      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  `]
+})
+export class DashboardComponent implements OnInit {
+  currentUser$!: Observable<User | null>;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.currentUser$ = this.authService.currentUser$;
   }
+}
