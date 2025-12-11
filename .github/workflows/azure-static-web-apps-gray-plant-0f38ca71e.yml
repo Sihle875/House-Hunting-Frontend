@@ -1,0 +1,84 @@
+name: Azure Static Web Apps CI/CD
+
+on:
+  push:
+    branches:
+      - Development
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - Development
+
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # or '20' - match your local development version
+          cache: 'npm'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Build the Angular application
+      - name: Build Angular app
+        run: npm run build -- --configuration production
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+
+      # Verify build output exists
+      - name: Verify build output
+        run: |
+          echo "Checking build output..."
+          ls -la dist/househunting-frontend/browser || echo "Build output not found!"
+
+      - name: Install OIDC Client from Core Package
+        run: npm install @actions/core@1.6.0 @actions/http-client
+
+      - name: Get Id Token
+        uses: actions/github-script@v6
+        id: idtoken
+        with:
+          script: |
+            const coredemo = require('@actions/core')
+            return await coredemo.getIDToken()
+          result-encoding: string
+
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_PLANT_0F38CA71E }}
+          action: "upload"
+          app_location: "dist/househunting-frontend/browser"
+          api_location: ""
+          output_location: "" # Leave empty since we're already pointing to the built output
+          github_id_token: ${{ steps.idtoken.outputs.result }}
+          skip_app_build: true # Important: Skip Azure's build since we built already
+          build_timeout_in_minutes: 60
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_PLANT_0F38CA71E }}
+          action: "close"
