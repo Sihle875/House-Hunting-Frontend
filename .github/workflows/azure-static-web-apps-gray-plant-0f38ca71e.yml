@@ -66,15 +66,13 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_PLANT_0F38CA71E }}
           action: "upload"
-          # Point directly to the browser output folder
-          app_location: "dist/househunting-frontend/browser"
+          app_location: "/"
           api_location: ""
-          # IMPORTANT: Set output_location to empty string
-          output_location: ""
+          output_location: "dist/househunting-frontend/browser"
           github_id_token: ${{ steps.idtoken.outputs.result }}
-          # Skip Azure's build process since we already built
           skip_app_build: true
           build_timeout_in_minutes: 60
+
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -87,3 +85,4 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_PLANT_0F38CA71E }}
           action: "close"
+
