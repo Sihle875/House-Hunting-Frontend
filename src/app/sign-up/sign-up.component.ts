@@ -28,6 +28,7 @@ export class SignUpComponent {
       name: ['', Validators.required],
       surname: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern('^[0-9]{10,15}$'), Validators.minLength(10)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }

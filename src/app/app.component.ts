@@ -47,6 +47,7 @@ import { AuthService } from './services/auth.service';
             <!-- Show when authenticated -->
             <ng-container *ngIf="isAuthenticated$ | async">
               <button 
+                *ngIf="!hasRole('USER')"
                 class="nav-btn" 
                 (click)="navigateTo('/dashboard')"
                 [class.active]="isCurrentRoute('/dashboard')"
@@ -63,7 +64,7 @@ import { AuthService } from './services/auth.service';
               
               <!-- Show admin link for admins only -->
               <button 
-                *ngIf="hasRole('ROLE_ADMIN')"
+                *ngIf="hasRole('ADMIN')"
                 class="nav-btn" 
                 (click)="navigateTo('/admin')"
                 [class.active]="isCurrentRoute('/admin')"
