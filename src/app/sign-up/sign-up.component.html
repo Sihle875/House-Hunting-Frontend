@@ -59,6 +59,22 @@
         </div>
       </div>
 
+      <!-- Phone number Field -->
+      <div class="form-group">
+        <label for="phone">Phone number *</label>
+        <input 
+          id="phone"
+          type="text" 
+          formControlName="phone" 
+          class="form-control"
+          [class.invalid]="isFieldInvalid('phone')"
+          placeholder="Enter your last name"
+        />
+        <div *ngIf="isFieldInvalid('phone')" class="error-text">
+          {{ getFieldError('phone') }}
+        </div>
+      </div>
+
       <!-- Password Field -->
       <div class="form-group">
         <label for="password">Password *</label>

@@ -50,9 +50,6 @@ export class AuthService {
    * Register new user
    */
   register(userData: any): Observable<AuthResponse> {
-    console.log('Name:', userData.name);
-      console.log('Surname:', userData.surname);
-      console.log('\nRegistering user with data:', userData);
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData)
       .pipe(
         tap(response => this.handleAuthResponse(response)),
@@ -249,6 +246,14 @@ export class AuthService {
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/sign-in']);
+  }
+
+  /**
+   * Update current user in storage
+   */
+  updateCurrentUser(user: User): void {
+    this.setUser(user);
+    this.currentUserSubject.next(user);
   }
 
   /**
