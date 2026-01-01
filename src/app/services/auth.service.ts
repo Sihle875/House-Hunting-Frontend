@@ -1,6 +1,6 @@
 // src/app/services/auth.service.ts
 
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
@@ -50,11 +50,15 @@ export class AuthService {
    * Register new user
    */
   register(userData: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData)
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/users`, userData)
       .pipe(
         tap(response => this.handleAuthResponse(response)),
         catchError(this.handleError)
       );
+  }
+
+  adminRegister(userData: any): Observable<HttpResponse<any>> {
+    return this.http.post('http://localhost:8080/api/v1/admin/users', userData, { observe: 'response'})
   }
 
   /**

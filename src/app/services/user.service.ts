@@ -10,6 +10,7 @@ export interface SignUpRequest {
   name: string;
   surname: string;
   email: string;
+  phoneNumber: string;
   password: string;
 }
 
@@ -36,6 +37,16 @@ export interface ApiResponse {
   data?: any;
 }
 
+export interface UserRecordDTO {
+  id: number
+  name: string;
+  surname: string;
+  email: string;
+  createdAt?: Date;
+  phoneNumber: string;
+  passsword: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -48,7 +59,7 @@ export class UserService {
    * Register new user
    */
   registerUser(userData: Omit<SignUpRequest, 'id'>): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${this.apiUrl}/register`, userData)
+    return this.http.post<ApiResponse>(`${this.apiUrl}/auth/users`, userData)
       .pipe(
         catchError(this.handleError)
       );
@@ -58,7 +69,7 @@ export class UserService {
    * Sign in user
    */
   signInUser(credentials: SignInRequest): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${this.apiUrl}/login`, credentials)
+    return this.http.post<ApiResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(
         catchError(this.handleError)
       );
@@ -99,6 +110,16 @@ export class UserService {
    */
   getUserProfile(): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(`${this.apiUrl}/profile`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Get all users
+   */
+  getAllUsers(): Observable<UserRecordDTO[]> {
+    return this.http.get<UserRecordDTO[]>(`${this.apiUrl}/users`)
       .pipe(
         catchError(this.handleError)
       );

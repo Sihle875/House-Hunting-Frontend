@@ -52,13 +52,13 @@ export const routes: Routes = [
     path: 'my-properties',
     loadComponent: () => import('./my-properties/my-properties.component').then(m => m.MyPropertiesComponent),
     canActivate: [authGuard]
-  },
-  /*{
+  },*/
+  {
     path: 'admin',
     loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent),
     canActivate: [authGuard],
-    data: { roles: ['ROLE_ADMIN'] }
-  },*/
+    data: { roles: ['ADMIN'] }
+  },
   /*{
     path: 'unauthorized',
     loadComponent: () => import('./unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)

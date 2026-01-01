@@ -1,3 +1,183 @@
+<div class="app-container">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-content">
+      <h1 (click)="navigateHome()">🏠 House Hunting</h1>
+      
+      <!-- Desktop Navigation -->
+      <nav class="nav-links desktop-nav">
+        <button 
+          class="nav-btn" 
+          (click)="navigateTo('/home')"
+          [class.active]="isCurrentRoute('/home')"
+        >
+          Home
+        </button>
 
+        <!-- Show when not authenticated -->
+        <ng-container *ngIf="!(isAuthenticated$ | async)">
+          <button 
+            class="nav-btn" 
+            (click)="navigateTo('/sign-in')"
+            [class.active]="isCurrentRoute('/sign-in')"
+          >
+            Sign In
+          </button>
+          <button 
+            class="nav-btn" 
+            (click)="navigateTo('/sign-up')"
+            [class.active]="isCurrentRoute('/sign-up')"
+          >
+            Sign Up
+          </button>
+        </ng-container>
+
+        <!-- Show when authenticated -->
+        <ng-container *ngIf="isAuthenticated$ | async">
+          <button 
+            *ngIf="!hasRole('USER')"
+            class="nav-btn" 
+            (click)="navigateTo('/dashboard')"
+            [class.active]="isCurrentRoute('/dashboard')"
+          >
+            Dashboard
+          </button>
+          <button 
+            class="nav-btn" 
+            (click)="navigateTo('/profile')"
+            [class.active]="isCurrentRoute('/profile')"
+          >
+            Profile
+          </button>
+          
+          <!-- Show admin link for admins only -->
+          <button 
+            *ngIf="hasRole('ADMIN')"
+            class="nav-btn nav-btn-admin" 
+            (click)="navigateTo('/admin')"
+            [class.active]="isCurrentRoute('/admin')"
+          >
+            🛠️ Admin
+          </button>
+        </ng-container>
+
+        <button 
+          class="nav-btn" 
+          (click)="navigateTo('/contact')"
+          [class.active]="isCurrentRoute('/contact')"
+        >
+          Contact Us
+        </button>
+
+        <!-- Logout button when authenticated -->
+        <button 
+          *ngIf="isAuthenticated$ | async"
+          class="nav-btn logout-btn" 
+          (click)="logout()"
+        >
+          Logout
+        </button>
+      </nav>
+
+      <!-- Mobile Navigation -->
+      <div class="mobile-nav">
+        <!-- Always visible buttons on mobile -->
+        <div class="mobile-static-btns">
+          <button 
+            class="nav-btn mobile-home-btn" 
+            (click)="navigateTo('/home')"
+            [class.active]="isCurrentRoute('/home')"
+          >
+            Home
+          </button>
+          <button 
+            class="nav-btn" 
+            (click)="navigateTo('/contact')"
+            [class.active]="isCurrentRoute('/contact')"
+          >
+            Contact
+          </button>
+        </div>
+
+        <!-- Hamburger Menu Button -->
+        <button class="hamburger-btn" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+      <div class="mobile-menu-content">
+        <!-- Show when not authenticated -->
+        <ng-container *ngIf="!(isAuthenticated$ | async)">
+          <button 
+            class="mobile-menu-btn" 
+            (click)="navigateTo('/sign-in'); closeMobileMenu()"
+            [class.active]="isCurrentRoute('/sign-in')"
+          >
+            <span class="btn-icon">🔑</span> Sign In
+          </button>
+          <button 
+            class="mobile-menu-btn" 
+            (click)="navigateTo('/sign-up'); closeMobileMenu()"
+            [class.active]="isCurrentRoute('/sign-up')"
+          >
+            <span class="btn-icon">📝</span> Sign Up
+          </button>
+        </ng-container>
+
+        <!-- Show when authenticated -->
+        <ng-container *ngIf="isAuthenticated$ | async">
+          <!-- User info in mobile menu -->
+          <div *ngIf="currentUser$ | async as user" class="mobile-user-info">
+            <span class="mobile-user-name">👤 {{ user.name }} {{ user.surname }}</span>
+            <span class="mobile-user-email">{{ user.email }}</span>
+          </div>
+
+          <button 
+            *ngIf="!hasRole('USER')"
+            class="mobile-menu-btn" 
+            (click)="navigateTo('/dashboard'); closeMobileMenu()"
+            [class.active]="isCurrentRoute('/dashboard')"
+          >
+            <span class="btn-icon">📊</span> Dashboard
+          </button>
+          <button 
+            class="mobile-menu-btn" 
+            (click)="navigateTo('/profile'); closeMobileMenu()"
+            [class.active]="isCurrentRoute('/profile')"
+          >
+            <span class="btn-icon">👤</span> Profile
+          </button>
+          
+          <!-- Show admin link for admins only -->
+          <button 
+            *ngIf="hasRole('ADMIN')"
+            class="mobile-menu-btn admin-btn" 
+            (click)="navigateTo('/admin'); closeMobileMenu()"
+            [class.active]="isCurrentRoute('/admin')"
+          >
+            <span class="btn-icon">🛠️</span> Admin Panel
+          </button>
+
+          <button 
+            class="mobile-menu-btn logout-btn" 
+            (click)="logout(); closeMobileMenu()"
+          >
+            <span class="btn-icon">🚪</span> Logout
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </header>
+
+  <!-- Overlay for mobile menu -->
+  <div class="mobile-menu-overlay" 
+       [class.visible]="isMobileMenuOpen" 
+       (click)="closeMobileMenu()">
+  </div>
 
 <router-outlet><router-outlet />

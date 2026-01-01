@@ -43,7 +43,7 @@ export class SignUpComponent {
       this.authService.register(userData).subscribe({
         next: (response) => {
           this.isLoading = false;
-          console.log('Registration successful', response);
+          console.log('Registration successful');
           
           // User is now logged in automatically
           // Navigate to home or dashboard
