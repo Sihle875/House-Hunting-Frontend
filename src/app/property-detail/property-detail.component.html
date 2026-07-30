@@ -1,0 +1,156 @@
+<div class="detail-wrapper">
+
+  <!-- Back -->
+  <div class="back-bar">
+    <button class="btn-back" (click)="goBack()">← Back to Listings</button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading property details…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!isLoading && errorMessage" class="error-state">
+    <p class="error-icon">⚠️</p>
+    <p>{{ errorMessage }}</p>
+    <button class="btn-back" (click)="goBack()">← Back to Listings</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && property" class="detail-content">
+
+    <!-- Hero image -->
+    <div class="hero-image-wrap">
+      <img
+        [src]="property.imageUrl || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200'"
+        [alt]="property.title"
+        class="hero-image"
+      />
+      <div class="hero-overlay">
+        <span class="hero-type">{{ property.propertyType }}</span>
+        <span class="hero-badge" [class.badge-available]="property.available" [class.badge-rented]="!property.available">
+          {{ property.available ? '✓ Available' : '✕ Rented' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+
+      <!-- Left: main info -->
+      <div class="main-info">
+        <h1 class="prop-title">{{ property.title }}</h1>
+        <p class="prop-location">📍 {{ property.location }}</p>
+        <p class="prop-price">R {{ property.price | number }}<span class="per-month"> / month</span></p>
+
+        <!-- Key stats -->
+        <div class="stats-row">
+          <div class="stat">
+            <span class="stat-icon">🛏</span>
+            <span class="stat-val">{{ property.bedrooms }}</span>
+            <span class="stat-lbl">Bedroom{{ property.bedrooms !== 1 ? 's' : '' }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">🛁</span>
+            <span class="stat-val">{{ property.bathrooms }}</span>
+            <span class="stat-lbl">Bathroom{{ property.bathrooms !== 1 ? 's' : '' }}</span>
+          </div>
+          <div class="stat" *ngIf="property.squareMeters">
+            <span class="stat-icon">📐</span>
+            <span class="stat-val">{{ property.squareMeters }}</span>
+            <span class="stat-lbl">m²</span>
+          </div>
+          <div class="stat" *ngIf="property.parkingSpaces">
+            <span class="stat-icon">🚗</span>
+            <span class="stat-val">{{ property.parkingSpaces }}</span>
+            <span class="stat-lbl">Parking</span>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="tags-row">
+          <span class="tag tag-green" *ngIf="property.furnished">🛋 Furnished</span>
+          <span class="tag tag-blue"  *ngIf="property.petsAllowed">🐾 Pets Allowed</span>
+          <span class="tag tag-grey"  *ngIf="!property.furnished">🛋 Unfurnished</span>
+          <span class="tag tag-grey"  *ngIf="!property.petsAllowed">🚫 No Pets</span>
+        </div>
+
+        <!-- Description -->
+        <div class="section">
+          <h2>About This Property</h2>
+          <p class="description">{{ property.description }}</p>
+        </div>
+
+        <!-- Amenities -->
+        <div class="section" *ngIf="property.amenities && property.amenities.length > 0">
+          <h2>Amenities</h2>
+          <div class="amenity-list">
+            <span class="amenity-chip" *ngFor="let a of property.amenities">✓ {{ a }}</span>
+          </div>
+        </div>
+
+        <!-- Listed date -->
+        <div class="section meta-footer" *ngIf="property.createdAt">
+          <small>Listed: {{ property.createdAt | date:'d MMMM yyyy' }}</small>
+        </div>
+      </div>
+
+      <!-- Right: enquiry form -->
+      <div class="enquiry-panel">
+        <div class="enquiry-card">
+
+          <h2>Enquire About This Property</h2>
+
+          <!-- Sent confirmation -->
+          <div *ngIf="enquirySent" class="sent-confirmation">
+            <div class="sent-icon">✓</div>
+            <h3>Enquiry Sent!</h3>
+            <p>We'll be in touch with you shortly.</p>
+          </div>
+
+          <form *ngIf="!enquirySent" [formGroup]="enquiryForm" (ngSubmit)="sendEnquiry()">
+
+            <div class="enquiry-error" *ngIf="enquiryError">{{ enquiryError }}</div>
+
+            <div class="form-group">
+              <label>Your Name *</label>
+              <input formControlName="name" placeholder="John Smith" />
+              <span class="field-error" *ngIf="isFieldInvalid('name')">{{ getFieldError('name') }}</span>
+            </div>
+
+            <div class="form-group">
+              <label>Email *</label>
+              <input formControlName="email" type="email" placeholder="you@example.com" />
+              <span class="field-error" *ngIf="isFieldInvalid('email')">{{ getFieldError('email') }}</span>
+            </div>
+
+            <div class="form-group">
+              <label>Phone *</label>
+              <input formControlName="phone" placeholder="0812345678" />
+              <span class="field-error" *ngIf="isFieldInvalid('phone')">{{ getFieldError('phone') }}</span>
+            </div>
+
+            <div class="form-group">
+              <label>Message *</label>
+              <textarea formControlName="message" rows="4"
+                placeholder="Hi, I'm interested in this property. Could you please share more details…"></textarea>
+              <span class="field-error" *ngIf="isFieldInvalid('message')">{{ getFieldError('message') }}</span>
+            </div>
+
+            <button type="submit" class="btn-enquire" [disabled]="isSendingEnquiry">
+              <span *ngIf="isSendingEnquiry" class="btn-spinner"></span>
+              {{ isSendingEnquiry ? 'Sending…' : 'Send Enquiry' }}
+            </button>
+
+            <p class="sign-in-prompt" *ngIf="!isAuthenticated">
+              <a routerLink="/sign-in">Sign in</a> to auto-fill your details.
+            </p>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

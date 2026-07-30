@@ -25,6 +25,13 @@ import { AuthService } from './services/auth.service';
             >
               Home
             </button>
+            <button 
+              class="nav-btn" 
+              (click)="navigateTo('/properties')"
+              [class.active]="isCurrentRoute('/properties')"
+            >
+              Browse
+            </button>
 
             <!-- Show when not authenticated -->
             <ng-container *ngIf="!(isAuthenticated$ | async)">
@@ -47,12 +54,18 @@ import { AuthService } from './services/auth.service';
             <!-- Show when authenticated -->
             <ng-container *ngIf="isAuthenticated$ | async">
               <button 
-                *ngIf="!hasRole('USER')"
                 class="nav-btn" 
-                (click)="navigateTo('/dashboard')"
-                [class.active]="isCurrentRoute('/dashboard')"
+                (click)="navigateTo('/properties')"
+                [class.active]="isCurrentRoute('/properties')"
               >
-                Dashboard
+                Properties
+              </button>
+              <button 
+                class="nav-btn" 
+                (click)="navigateTo('/owner-dashboard')"
+                [class.active]="isCurrentRoute('/owner-dashboard')"
+              >
+                My Listings
               </button>
               <button 
                 class="nav-btn" 

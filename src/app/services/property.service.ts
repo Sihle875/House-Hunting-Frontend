@@ -68,7 +68,7 @@ export interface ContactFormApiResponse {
 })
 export class PropertyService {
   private apiUrl = environment.apiUrl;
-  private useMockData = true; // Toggle this to switch between mock and real API
+  private useMockData = false; // Real API — toggle to true for offline development
 
   // Mock data for development
   private mockProperties: Property[] = [
@@ -223,169 +223,92 @@ export class PropertyService {
   /**
    * Get featured properties for the home page carousel
    */
-  getFeaturedProperties(): Observable<PropertyApiResponse> {
+  getFeaturedProperties(): Observable<Property[]> {
     if (this.useMockData) {
-      // Return first 6 properties as featured
-      const featured = this.mockProperties.slice(0, 6);
-      return of({
-        success: true,
-        message: 'Featured properties retrieved successfully',
-        data: featured
-      }).pipe(delay(500)); // Simulate network delay
+      return of(this.mockProperties.slice(0, 6)).pipe(delay(500));
     }
-
-    return this.http.get<PropertyApiResponse>(`${this.apiUrl}/properties/featured`)
+    return this.http.get<Property[]>(`${this.apiUrl}/properties/featured`)
       .pipe(catchError(this.handleError));
   }
 
   /**
    * Search properties based on criteria
    */
-  searchProperties(criteria: PropertySearchRequest): Observable<PropertyApiResponse> {
+  searchProperties(criteria: PropertySearchRequest): Observable<Property[]> {
     if (this.useMockData) {
       let filtered = [...this.mockProperties];
-
-      // Apply filters
-      if (criteria.location) {
-        filtered = filtered.filter(p => 
-          p.location.toLowerCase().includes(criteria.location!.toLowerCase())
-        );
-      }
-
-      if (criteria.propertyType) {
-        filtered = filtered.filter(p => 
-          p.propertyType.toLowerCase() === criteria.propertyType!.toLowerCase()
-        );
-      }
-
-      if (criteria.minPrice !== undefined) {
-        filtered = filtered.filter(p => p.price >= criteria.minPrice!);
-      }
-
-      if (criteria.maxPrice !== undefined) {
-        filtered = filtered.filter(p => p.price <= criteria.maxPrice!);
-      }
-
-      if (criteria.minBedrooms !== undefined) {
-        filtered = filtered.filter(p => p.bedrooms >= criteria.minBedrooms!);
-      }
-
-      if (criteria.maxBedrooms !== undefined) {
-        filtered = filtered.filter(p => p.bedrooms <= criteria.maxBedrooms!);
-      }
-
-      if (criteria.minBathrooms !== undefined) {
-        filtered = filtered.filter(p => p.bathrooms >= criteria.minBathrooms!);
-      }
-
-      if (criteria.maxBathrooms !== undefined) {
-        filtered = filtered.filter(p => p.bathrooms <= criteria.maxBathrooms!);
-      }
-
-      if (criteria.furnished !== undefined) {
-        filtered = filtered.filter(p => p.furnished === criteria.furnished);
-      }
-
-      if (criteria.petsAllowed !== undefined) {
-        filtered = filtered.filter(p => p.petsAllowed === criteria.petsAllowed);
-      }
-
-      if (criteria.available !== undefined) {
-        filtered = filtered.filter(p => p.available === criteria.available);
-      }
-
-      return of({
-        success: true,
-        message: `Found ${filtered.length} properties`,
-        data: filtered
-      }).pipe(delay(500));
+      if (criteria.location)    filtered = filtered.filter(p => p.location.toLowerCase().includes(criteria.location!.toLowerCase()));
+      if (criteria.propertyType) filtered = filtered.filter(p => p.propertyType.toLowerCase() === criteria.propertyType!.toLowerCase());
+      if (criteria.minPrice !== undefined) filtered = filtered.filter(p => p.price >= criteria.minPrice!);
+      if (criteria.maxPrice !== undefined) filtered = filtered.filter(p => p.price <= criteria.maxPrice!);
+      if (criteria.minBedrooms !== undefined) filtered = filtered.filter(p => p.bedrooms >= criteria.minBedrooms!);
+      if (criteria.maxBedrooms !== undefined) filtered = filtered.filter(p => p.bedrooms <= criteria.maxBedrooms!);
+      if (criteria.minBathrooms !== undefined) filtered = filtered.filter(p => p.bathrooms >= criteria.minBathrooms!);
+      if (criteria.maxBathrooms !== undefined) filtered = filtered.filter(p => p.bathrooms <= criteria.maxBathrooms!);
+      if (criteria.furnished !== undefined) filtered = filtered.filter(p => p.furnished === criteria.furnished);
+      if (criteria.petsAllowed !== undefined) filtered = filtered.filter(p => p.petsAllowed === criteria.petsAllowed);
+      if (criteria.available !== undefined) filtered = filtered.filter(p => p.available === criteria.available);
+      return of(filtered).pipe(delay(500));
     }
 
     let params = new HttpParams();
-    if (criteria.location) params = params.set('location', criteria.location);
+    if (criteria.location)     params = params.set('location', criteria.location);
     if (criteria.propertyType) params = params.set('propertyType', criteria.propertyType);
-    if (criteria.minPrice !== undefined) params = params.set('minPrice', criteria.minPrice.toString());
-    if (criteria.maxPrice !== undefined) params = params.set('maxPrice', criteria.maxPrice.toString());
+    if (criteria.minPrice !== undefined)    params = params.set('minPrice', criteria.minPrice.toString());
+    if (criteria.maxPrice !== undefined)    params = params.set('maxPrice', criteria.maxPrice.toString());
     if (criteria.minBedrooms !== undefined) params = params.set('minBedrooms', criteria.minBedrooms.toString());
     if (criteria.maxBedrooms !== undefined) params = params.set('maxBedrooms', criteria.maxBedrooms.toString());
     if (criteria.minBathrooms !== undefined) params = params.set('minBathrooms', criteria.minBathrooms.toString());
     if (criteria.maxBathrooms !== undefined) params = params.set('maxBathrooms', criteria.maxBathrooms.toString());
-    if (criteria.furnished !== undefined) params = params.set('furnished', criteria.furnished.toString());
+    if (criteria.furnished !== undefined)   params = params.set('furnished', criteria.furnished.toString());
     if (criteria.petsAllowed !== undefined) params = params.set('petsAllowed', criteria.petsAllowed.toString());
-    if (criteria.available !== undefined) params = params.set('available', criteria.available.toString());
+    if (criteria.available !== undefined)   params = params.set('available', criteria.available.toString());
 
-    return this.http.get<PropertyApiResponse>(`${this.apiUrl}/properties/search`, { params })
+    return this.http.get<Property[]>(`${this.apiUrl}/properties/search`, { params })
       .pipe(catchError(this.handleError));
   }
 
   /**
    * Get all properties with optional pagination
    */
-  getAllProperties(page: number = 0, size: number = 10): Observable<PropertyApiResponse> {
+  getAllProperties(page: number = 0, size: number = 10): Observable<Property[]> {
     if (this.useMockData) {
       const start = page * size;
-      const end = start + size;
-      const paginatedData = this.mockProperties.slice(start, end);
-
-      return of({
-        success: true,
-        message: 'Properties retrieved successfully',
-        data: paginatedData
-      }).pipe(delay(500));
+      return of(this.mockProperties.slice(start, start + size)).pipe(delay(500));
     }
-
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-
-    return this.http.get<PropertyApiResponse>(`${this.apiUrl}/properties`, { params })
+    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    return this.http.get<Property[]>(`${this.apiUrl}/properties`, { params })
       .pipe(catchError(this.handleError));
   }
 
   /**
    * Get a single property by ID
    */
-  getPropertyById(id: number): Observable<SinglePropertyApiResponse> {
+  getPropertyById(id: number): Observable<Property> {
     if (this.useMockData) {
       const property = this.mockProperties.find(p => p.id === id);
-      
-      if (property) {
-        return of({
-          success: true,
-          message: 'Property retrieved successfully',
-          data: property
-        }).pipe(delay(500));
-      } else {
-        return throwError(() => new Error('Property not found'));
-      }
+      if (property) return of(property).pipe(delay(500));
+      return throwError(() => new Error('Property not found'));
     }
-
-    return this.http.get<SinglePropertyApiResponse>(`${this.apiUrl}/properties/${id}`)
+    return this.http.get<Property>(`${this.apiUrl}/properties/${id}`)
       .pipe(catchError(this.handleError));
   }
 
   /**
    * Get properties by owner ID (for landlord dashboard)
    */
-  getPropertiesByOwner(ownerId: number): Observable<PropertyApiResponse> {
+  getPropertiesByOwner(ownerId: number): Observable<Property[]> {
     if (this.useMockData) {
-      const ownerProperties = this.mockProperties.filter(p => p.ownerId === ownerId);
-      
-      return of({
-        success: true,
-        message: 'Owner properties retrieved successfully',
-        data: ownerProperties
-      }).pipe(delay(500));
+      return of(this.mockProperties.filter(p => p.ownerId === ownerId)).pipe(delay(500));
     }
-
-    return this.http.get<PropertyApiResponse>(`${this.apiUrl}/properties/owner/${ownerId}`)
+    return this.http.get<Property[]>(`${this.apiUrl}/properties/owner/${ownerId}`)
       .pipe(catchError(this.handleError));
   }
 
   /**
    * Create a new property listing (for landlords)
    */
-  createProperty(propertyData: Omit<Property, 'id'>): Observable<SinglePropertyApiResponse> {
+  createProperty(propertyData: Omit<Property, 'id'>): Observable<Property> {
     if (this.useMockData) {
       const newProperty: Property = {
         ...propertyData,
@@ -393,68 +316,42 @@ export class PropertyService {
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      
       this.mockProperties.push(newProperty);
-
-      return of({
-        success: true,
-        message: 'Property created successfully',
-        data: newProperty
-      }).pipe(delay(500));
+      return of(newProperty).pipe(delay(500));
     }
-
-    return this.http.post<SinglePropertyApiResponse>(`${this.apiUrl}/properties`, propertyData)
+    return this.http.post<Property>(`${this.apiUrl}/properties`, propertyData)
       .pipe(catchError(this.handleError));
   }
 
   /**
    * Update an existing property
    */
-  updateProperty(id: number, propertyData: Partial<Property>): Observable<SinglePropertyApiResponse> {
+  updateProperty(id: number, propertyData: Partial<Property>): Observable<Property> {
     if (this.useMockData) {
       const index = this.mockProperties.findIndex(p => p.id === id);
-      
       if (index !== -1) {
-        this.mockProperties[index] = {
-          ...this.mockProperties[index],
-          ...propertyData,
-          updatedAt: new Date()
-        };
-
-        return of({
-          success: true,
-          message: 'Property updated successfully',
-          data: this.mockProperties[index]
-        }).pipe(delay(500));
-      } else {
-        return throwError(() => new Error('Property not found'));
+        this.mockProperties[index] = { ...this.mockProperties[index], ...propertyData, updatedAt: new Date() };
+        return of(this.mockProperties[index]).pipe(delay(500));
       }
+      return throwError(() => new Error('Property not found'));
     }
-
-    return this.http.put<SinglePropertyApiResponse>(`${this.apiUrl}/properties/${id}`, propertyData)
+    return this.http.put<Property>(`${this.apiUrl}/properties/${id}`, propertyData)
       .pipe(catchError(this.handleError));
   }
 
   /**
    * Delete a property listing
    */
-  deleteProperty(id: number): Observable<ContactFormApiResponse> {
+  deleteProperty(id: number): Observable<{ message: string }> {
     if (this.useMockData) {
       const index = this.mockProperties.findIndex(p => p.id === id);
-      
       if (index !== -1) {
         this.mockProperties.splice(index, 1);
-        
-        return of({
-          success: true,
-          message: 'Property deleted successfully'
-        }).pipe(delay(500));
-      } else {
-        return throwError(() => new Error('Property not found'));
+        return of({ message: 'Property deleted successfully' }).pipe(delay(500));
       }
+      return throwError(() => new Error('Property not found'));
     }
-
-    return this.http.delete<ContactFormApiResponse>(`${this.apiUrl}/properties/${id}`)
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/properties/${id}`)
       .pipe(catchError(this.handleError));
   }
 
@@ -512,8 +409,28 @@ export class PropertyService {
   }
 
   /**
-   * Get user's favorite properties (requires authentication)
+   * Get properties owned by the currently logged-in user
    */
+  getMyProperties(): Observable<Property[]> {
+    if (this.useMockData) {
+      return of(this.mockProperties).pipe(delay(400));
+    }
+    return this.http.get<Property[]>(`${this.apiUrl}/properties/my-properties`)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Toggle available flag for a property
+   */
+  toggleAvailability(id: number): Observable<Property> {
+    if (this.useMockData) {
+      const prop = this.mockProperties.find(p => p.id === id);
+      if (prop) { prop.available = !prop.available; return of({ ...prop }).pipe(delay(300)); }
+      return throwError(() => new Error('Property not found'));
+    }
+    return this.http.patch<Property>(`${this.apiUrl}/properties/${id}/toggle-availability`, {})
+      .pipe(catchError(this.handleError));
+  }
   getFavoriteProperties(): Observable<PropertyApiResponse> {
     if (this.useMockData) {
       // Return random properties as favorites

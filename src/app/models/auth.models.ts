@@ -10,6 +10,10 @@ export interface AuthResponse {
   type: string;
   refreshToken?: string;
   email: string;
+  name?: string;
+  surname?: string;
+  phoneNumber?: string;
+  role?: string;
   roles?: string[];
 }
 

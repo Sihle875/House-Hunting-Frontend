@@ -1,0 +1,133 @@
+<div class="page-wrapper">
+
+  <!-- Hero search bar -->
+  <div class="search-hero">
+    <div class="search-hero-content">
+      <h1>Find Your Next Home</h1>
+      <p>Browse {{ resultCount !== null ? resultCount : '' }} available properties</p>
+
+      <form [formGroup]="searchForm" (ngSubmit)="search()" class="search-bar">
+        <input
+          formControlName="location"
+          type="text"
+          placeholder="Search by location…"
+          class="search-input"
+        />
+        <select formControlName="propertyType" class="search-select">
+          <option value="">All Types</option>
+          <option *ngFor="let t of propertyTypes" [value]="t">{{ t }}</option>
+        </select>
+        <button type="submit" class="btn-search">Search</button>
+        <button type="button" class="btn-filter" (click)="toggleFilters()">
+          {{ showFilters ? '▲ Hide Filters' : '▼ Filters' }}
+        </button>
+      </form>
+
+      <!-- Advanced filters -->
+      <div class="advanced-filters" *ngIf="showFilters" [formGroup]="searchForm">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>Min Price (R)</label>
+            <input type="number" formControlName="minPrice" placeholder="0" min="0" />
+          </div>
+          <div class="filter-group">
+            <label>Max Price (R)</label>
+            <input type="number" formControlName="maxPrice" placeholder="Any" min="0" />
+          </div>
+          <div class="filter-group">
+            <label>Min Bedrooms</label>
+            <select formControlName="minBedrooms">
+              <option value="">Any</option>
+              <option *ngFor="let n of [1,2,3,4,5]" [value]="n">{{ n }}+</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Furnished</label>
+            <select formControlName="furnished">
+              <option value="">Any</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Pets Allowed</label>
+            <select formControlName="petsAllowed">
+              <option value="">Any</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Availability</label>
+            <select formControlName="available">
+              <option value="">All</option>
+              <option value="true">Available</option>
+              <option value="false">Rented</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button type="button" class="btn-clear" (click)="clearSearch()">Clear Filters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="alert-error-banner">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading properties…</p>
+  </div>
+
+  <!-- Results -->
+  <div *ngIf="!isLoading" class="results-section">
+
+    <div *ngIf="properties.length === 0" class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h2>No properties found</h2>
+      <p>Try adjusting your search filters.</p>
+      <button class="btn-clear" (click)="clearSearch()">Show All Properties</button>
+    </div>
+
+    <div *ngIf="properties.length > 0" class="property-grid">
+      <div class="property-card" *ngFor="let p of properties" (click)="viewProperty(p.id)">
+
+        <div class="card-image-wrap">
+          <img
+            [src]="p.imageUrl || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600'"
+            [alt]="p.title"
+            class="card-image"
+          />
+          <span class="badge" [class.badge-available]="p.available" [class.badge-rented]="!p.available">
+            {{ p.available ? 'Available' : 'Rented' }}
+          </span>
+          <span class="badge-type">{{ p.propertyType }}</span>
+        </div>
+
+        <div class="card-body">
+          <h3 class="card-title">{{ p.title }}</h3>
+          <p class="card-location">📍 {{ p.location }}</p>
+          <p class="card-price">R {{ p.price | number }} <span class="per-month">/ month</span></p>
+
+          <div class="card-meta">
+            <span>🛏 {{ p.bedrooms }} bed</span>
+            <span>🛁 {{ p.bathrooms }} bath</span>
+            <span *ngIf="p.squareMeters">📐 {{ p.squareMeters }}m²</span>
+            <span *ngIf="p.furnished">🛋 Furnished</span>
+            <span *ngIf="p.petsAllowed">🐾 Pets OK</span>
+          </div>
+
+          <button class="btn-view" (click)="viewProperty(p.id); $event.stopPropagation()">
+            View Details →
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

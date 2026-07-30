@@ -6,28 +6,39 @@ import { SignInComponent } from './sign-in/sign-in.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
 
 export const routes: Routes = [
-    {
-        path: '',
-        redirectTo: '/home',
-        pathMatch: 'full'
-    },
-    {
-        path: 'home',
-        component: HomeComponent
-    },
-    {
-        path: 'sign-up',
-        component: SignUpComponent
-    },
-    {
-        path: 'sign-in',
-        component: SignInComponent
-    },
-    {
-        path: 'contact',
-        component: ContactFormComponent
-    },
-    // Protected routes example
+  {
+    path: '',
+    redirectTo: '/home',
+    pathMatch: 'full'
+  },
+  {
+    path: 'home',
+    component: HomeComponent
+  },
+  {
+    path: 'sign-up',
+    component: SignUpComponent
+  },
+  {
+    path: 'sign-in',
+    component: SignInComponent
+  },
+  {
+    path: 'contact',
+    component: ContactFormComponent
+  },
+
+  // ── Property browsing (public) ──────────────────────────
+  {
+    path: 'properties',
+    loadComponent: () => import('./properties/properties.component').then(m => m.PropertiesComponent)
+  },
+  {
+    path: 'properties/:id',
+    loadComponent: () => import('./property-detail/property-detail.component').then(m => m.PropertyDetailComponent)
+  },
+
+  // ── Authenticated user routes ───────────────────────────
   {
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
@@ -48,21 +59,19 @@ export const routes: Routes = [
     loadComponent: () => import('./my-inquiries/my-inquiries.component').then(m => m.MyInquiriesComponent),
     canActivate: [authGuard]
   },
-  /*{
-    path: 'my-properties',
-    loadComponent: () => import('./my-properties/my-properties.component').then(m => m.MyPropertiesComponent),
+
+  // ── Owner dashboard ─────────────────────────────────────
+  {
+    path: 'owner-dashboard',
+    loadComponent: () => import('./owner-dashboard/owner-dashboard.component').then(m => m.OwnerDashboardComponent),
     canActivate: [authGuard]
   },
-  /*{
-    path: 'admin',
-    loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent),
-    canActivate: [authGuard],
-    data: { roles: ['ROLE_ADMIN'] }
-  },*/
-  /*{
+
+  // ── Utility ─────────────────────────────────────────────
+  {
     path: 'unauthorized',
     loadComponent: () => import('./unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
-  },*/
+  },
   {
     path: '**',
     redirectTo: '/home'

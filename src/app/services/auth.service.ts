@@ -149,9 +149,13 @@ export class AuthService {
         this.setRefreshToken(response.refreshToken);
       }
 
-      // Decode token to get user info
+      // Decode token to get user info, then merge any extra fields from response
       const user = this.decodeToken(response.token);
       if (user) {
+        // Backend returns role as a single string; normalise to roles array
+        if (response.role && (!user.roles || user.roles.length === 0)) {
+          user.roles = [response.role];
+        }
         this.setUser(user);
         this.currentUserSubject.next(user);
       }
