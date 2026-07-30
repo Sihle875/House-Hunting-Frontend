@@ -64,7 +64,7 @@ export class HomeComponent implements OnInit {
     this.isLoadingProperties = true;
     this.propertyService.getFeaturedProperties().subscribe({
       next: (response) => {
-        this.featuredProperties = response.data || [];
+        this.featuredProperties = response;
         this.isLoadingProperties = false;
       },
       error: (error) => {
