@@ -1,1 +1,41 @@
-/* You can add global styles to this file, and also import other style files */
+/* ── Global Reset & Base ───────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary:       #6C5CE7;
+  --primary-dark:  #5a4bd1;
+  --primary-light: #a29bfe;
+  --accent:        #00cec9;
+  --gold:          #fdcb6e;
+  --text:          #2d3436;
+  --text-muted:    #636e72;
+  --bg:            #f8f9fc;
+  --white:         #ffffff;
+  --border:        #e1e4ed;
+  --shadow-sm:     0 2px 8px rgba(108,92,231,.10);
+  --shadow-md:     0 6px 24px rgba(108,92,231,.14);
+  --shadow-lg:     0 16px 48px rgba(108,92,231,.18);
+  --radius:        12px;
+  --radius-sm:     8px;
+  --header-h:      68px;
+  --transition:    0.25s ease;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+img { display: block; max-width: 100%; }
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }

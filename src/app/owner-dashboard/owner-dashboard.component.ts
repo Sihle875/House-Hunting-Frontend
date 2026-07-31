@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { AvailableCountPipe, UnavailableCountPipe } from '../pipes/property-count.pipe';
 import { Property, PropertyService } from '../services/property.service';
+import { AiService } from '../services/ai.service';
 
 @Component({
   selector: 'app-owner-dashboard',
@@ -28,6 +29,10 @@ export class OwnerDashboardComponent implements OnInit {
   editingId: number | null = null;
   isSubmitting = false;
 
+  // AI description generation
+  isGeneratingDesc = false;
+  aiError = '';
+
   // Confirm delete
   showDeleteConfirm = false;
   deletingId: number | null = null;
@@ -43,6 +48,7 @@ export class OwnerDashboardComponent implements OnInit {
     private fb: FormBuilder,
     private propertyService: PropertyService,
     private authService: AuthService,
+    private aiService: AiService,
     private router: Router
   ) {}
 
@@ -239,6 +245,41 @@ export class OwnerDashboardComponent implements OnInit {
   private clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
+    this.aiError = '';
+  }
+
+  generateDescription(): void {
+    const v = this.propertyForm.value;
+
+    // Need at least title, location and propertyType filled in
+    if (!v.title || !v.location || !v.propertyType) {
+      this.aiError = 'Fill in Title, Location and Property Type first so the AI has enough context.';
+      return;
+    }
+
+    this.isGeneratingDesc = true;
+    this.aiError = '';
+
+    this.aiService.generateDescription({
+      title:        v.title,
+      location:     v.location,
+      propertyType: v.propertyType,
+      bedrooms:     v.bedrooms  ?? 1,
+      bathrooms:    v.bathrooms ?? 1,
+      squareMeters: v.squareMeters ?? null,
+      furnished:    v.furnished  ?? false,
+      petsAllowed:  v.petsAllowed ?? false,
+      amenities:    this.selectedAmenities
+    }).subscribe({
+      next: (res) => {
+        this.propertyForm.patchValue({ description: res.description });
+        this.isGeneratingDesc = false;
+      },
+      error: (err) => {
+        this.aiError = err.message || 'AI generation failed. You can still type the description manually.';
+        this.isGeneratingDesc = false;
+      }
+    });
   }
 
   logout(): void {

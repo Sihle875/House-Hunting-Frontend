@@ -1,95 +1,88 @@
 <div class="home-container">
-  <!-- Hero Section with Carousel -->
+
+  <!-- ── Hero Carousel ───────────────────────────────────────── -->
   <section class="hero-section" id="home">
     <div class="carousel-container">
+
       <div class="carousel-wrapper" *ngIf="featuredProperties.length > 0">
-        <div class="carousel-slide" 
-             *ngFor="let property of featuredProperties; let i = index"
-             [class.active]="i === currentSlide">
-          <img [src]="property.imageUrl" [alt]="property.title">
+        <div
+          class="carousel-slide"
+          *ngFor="let p of featuredProperties; let i = index"
+          [class.active]="i === currentSlide"
+        >
+          <img [src]="p.imageUrl" [alt]="p.title" loading="lazy" />
           <div class="carousel-overlay">
             <div class="carousel-content">
-              <h1>{{ property.title }}</h1>
-              <p class="property-location">📍 {{ property.location }}</p>
-              <p class="property-price">R{{ property.price | number }}/month</p>
+              <h1>{{ p.title }}</h1>
+              <p class="property-location">📍 {{ p.location }}</p>
+              <p class="property-price">R{{ p.price | number }}<span style="font-size:1rem;font-weight:400;opacity:.8">/month</span></p>
               <div class="property-features">
-                <span>🛏️ {{ property.bedrooms }} Beds</span>
-                <span>🚿 {{ property.bathrooms }} Baths</span>
-                <span>🏠 {{ property.propertyType }}</span>
+                <span>🛏 {{ p.bedrooms }} bed</span>
+                <span>🛁 {{ p.bathrooms }} bath</span>
+                <span>{{ p.propertyType }}</span>
               </div>
-              <button class="btn-primary" (click)="viewPropertyDetails(property.id)">
-                View Details
+              <button class="btn-primary" (click)="viewPropertyDetails(p.id)">
+                View Property →
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Carousel Controls -->
-        <button class="carousel-control prev" (click)="prevSlide()">❮</button>
-        <button class="carousel-control next" (click)="nextSlide()">❯</button>
+        <button class="carousel-control prev" (click)="prevSlide()">&#8249;</button>
+        <button class="carousel-control next" (click)="nextSlide()">&#8250;</button>
 
-        <!-- Carousel Indicators -->
         <div class="carousel-indicators">
-          <button *ngFor="let property of featuredProperties; let i = index"
-                  [class.active]="i === currentSlide"
-                  (click)="goToSlide(i)">
-          </button>
+          <button
+            *ngFor="let p of featuredProperties; let i = index"
+            [class.active]="i === currentSlide"
+            (click)="goToSlide(i)"
+          ></button>
         </div>
       </div>
 
       <div class="loading-spinner" *ngIf="isLoadingProperties">
         <div class="spinner"></div>
-        <p>Loading featured properties...</p>
+        <p>Loading featured properties…</p>
       </div>
+
     </div>
   </section>
 
-  <!-- Search Section -->
+  <!-- ── Search ──────────────────────────────────────────────── -->
   <section class="search-section" id="search">
     <div class="container">
-      <h2>Find Your Perfect Home</h2>
-      <p class="section-subtitle">Search through thousands of rental properties</p>
+      <div class="section-heading">
+        <h2>Find Your Perfect Home</h2>
+        <p class="section-subtitle">Search through verified rental properties across South Africa</p>
+      </div>
 
-      <form [formGroup]="searchForm" (ngSubmit)="searchProperties()" class="search-form">
+      <form [formGroup]="searchForm" (ngSubmit)="searchProperties()" class="search-card">
         <div class="search-grid">
           <div class="form-group">
             <label for="location">Location *</label>
-            <input 
-              id="location"
-              type="text" 
-              formControlName="location"
-              class="form-control"
-              placeholder="e.g., Cape Town, Observatory"
-            />
+            <input id="location" type="text" formControlName="location"
+              class="form-control" placeholder="e.g. Cape Town, Observatory" />
           </div>
-
           <div class="form-group">
             <label for="propertyType">Property Type</label>
             <select id="propertyType" formControlName="propertyType" class="form-control">
               <option value="">All Types</option>
-              <option *ngFor="let type of propertyTypes" [value]="type">{{ type }}</option>
+              <option *ngFor="let t of propertyTypes" [value]="t">{{ t }}</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="priceRange">Price Range</label>
             <select id="priceRange" formControlName="priceRange" class="form-control">
-              <option *ngFor="let range of priceRanges" [value]="range.value">
-                {{ range.label }}
-              </option>
+              <option *ngFor="let r of priceRanges" [value]="r.value">{{ r.label }}</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="bedrooms">Bedrooms</label>
             <select id="bedrooms" formControlName="bedrooms" class="form-control">
-              <option *ngFor="let option of bedroomOptions" [value]="option.value">
-                {{ option.label }}
-              </option>
+              <option *ngFor="let o of bedroomOptions" [value]="o.value">{{ o.label }}</option>
             </select>
           </div>
         </div>
-
         <button type="submit" class="btn-search" [disabled]="searchForm.invalid">
           🔍 Search Properties
         </button>
@@ -97,32 +90,45 @@
     </div>
   </section>
 
-  <!-- Featured Properties Section -->
+  <!-- ── Stats strip ─────────────────────────────────────────── -->
+  <section class="stats-strip">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item"><h3>10k+</h3><p>Properties Listed</p></div>
+        <div class="stat-item"><h3>5k+</h3><p>Happy Tenants</p></div>
+        <div class="stat-item"><h3>50+</h3><p>Cities Covered</p></div>
+        <div class="stat-item"><h3>24/7</h3><p>Support</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Featured Properties ─────────────────────────────────── -->
   <section class="featured-section">
     <div class="container">
-      <h2>Featured Properties</h2>
-      <p class="section-subtitle">Handpicked properties just for you</p>
+      <div class="section-heading">
+        <h2>Featured Properties</h2>
+        <p class="section-subtitle">Handpicked listings just for you</p>
+      </div>
 
       <div class="properties-grid">
-        <div class="property-card" *ngFor="let property of featuredProperties">
+        <div class="property-card" *ngFor="let p of featuredProperties" (click)="viewPropertyDetails(p.id)">
           <div class="property-image">
-            <img [src]="property.imageUrl" [alt]="property.title">
+            <img [src]="p.imageUrl" [alt]="p.title" loading="lazy" />
             <span class="property-badge">Available</span>
+            <span class="property-type-badge">{{ p.propertyType }}</span>
           </div>
           <div class="property-info">
-            <h3>{{ property.title }}</h3>
-            <p class="property-location">📍 {{ property.location }}</p>
-            <p class="property-description">{{ property.description }}</p>
+            <h3>{{ p.title }}</h3>
+            <p class="property-location">📍 {{ p.location }}</p>
+            <p class="property-description">{{ p.description }}</p>
             <div class="property-features">
-              <span>🛏️ {{ property.bedrooms }}</span>
-              <span>🚿 {{ property.bathrooms }}</span>
-              <span>{{ property.propertyType }}</span>
+              <span>🛏 {{ p.bedrooms }}</span>
+              <span>🛁 {{ p.bathrooms }}</span>
+              <span *ngIf="p.squareMeters">📐 {{ p.squareMeters }}m²</span>
             </div>
             <div class="property-footer">
-              <span class="property-price">R{{ property.price | number }}/mo</span>
-              <button class="btn-view" (click)="viewPropertyDetails(property.id)">
-                View
-              </button>
+              <span class="property-price">R{{ p.price | number }}/mo</span>
+              <button class="btn-view" (click)="viewPropertyDetails(p.id); $event.stopPropagation()">View</button>
             </div>
           </div>
         </div>
@@ -130,128 +136,105 @@
     </div>
   </section>
 
-  <!-- About Section -->
+  <!-- ── About ───────────────────────────────────────────────── -->
   <section class="about-section" id="about">
     <div class="container">
-      <div class="about-content">
-        <div class="about-text">
-          <h2>About House Hunting</h2>
-          <p>Welcome to House Hunting, your trusted partner in finding the perfect rental property. We understand that finding a home is more than just a transaction—it's about discovering a place where memories are made and dreams come true.</p>
-          
-          <div class="about-features">
-            <div class="feature-item">
-              <div class="feature-icon">🏠</div>
-              <h3>Wide Selection</h3>
-              <p>Browse thousands of verified rental properties across South Africa</p>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">✓</div>
-              <h3>Verified Listings</h3>
-              <p>All properties are verified to ensure quality and authenticity</p>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">💬</div>
-              <h3>Easy Communication</h3>
-              <p>Connect directly with property owners and landlords</p>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">🔒</div>
-              <h3>Secure Platform</h3>
-              <p>Your data and transactions are protected with enterprise-grade security</p>
-            </div>
+      <div class="section-heading">
+        <h2>About House Hunting</h2>
+      </div>
+      <div class="about-text">
+        <p>Your trusted partner in finding the perfect rental property across South Africa. We connect tenants with verified landlords, making the search simple, safe, and stress-free.</p>
+        <div class="about-features">
+          <div class="feature-item">
+            <div class="feature-icon">🏠</div>
+            <h3>Wide Selection</h3>
+            <p>Browse thousands of verified rental properties nationwide</p>
           </div>
-
-          <div class="stats-grid">
-            <div class="stat-item">
-              <h3>10,000+</h3>
-              <p>Properties Listed</p>
-            </div>
-            <div class="stat-item">
-              <h3>5,000+</h3>
-              <p>Happy Tenants</p>
-            </div>
-            <div class="stat-item">
-              <h3>50+</h3>
-              <p>Cities Covered</p>
-            </div>
-            <div class="stat-item">
-              <h3>24/7</h3>
-              <p>Customer Support</p>
-            </div>
+          <div class="feature-item">
+            <div class="feature-icon">✅</div>
+            <h3>Verified Listings</h3>
+            <p>Every property is reviewed to ensure quality and authenticity</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">💬</div>
+            <h3>Direct Communication</h3>
+            <p>Contact landlords directly — no middleman, no delays</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🔒</div>
+            <h3>Secure Platform</h3>
+            <p>Enterprise-grade security protects your data at every step</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- How It Works Section -->
+  <!-- ── How It Works ────────────────────────────────────────── -->
   <section class="how-it-works-section">
     <div class="container">
-      <h2>How It Works</h2>
-      <p class="section-subtitle">Your journey to finding a perfect home in 3 simple steps</p>
-
+      <div class="section-heading">
+        <h2>How It Works</h2>
+        <p class="section-subtitle">Find your perfect home in 3 simple steps</p>
+      </div>
       <div class="steps-grid">
         <div class="step-item">
           <div class="step-number">1</div>
-          <h3>Search & Filter</h3>
-          <p>Use our advanced search filters to find properties that match your preferences and budget</p>
+          <h3>Search &amp; Filter</h3>
+          <p>Use our advanced filters to find properties that match your budget and lifestyle</p>
         </div>
         <div class="step-item">
           <div class="step-number">2</div>
-          <h3>View & Compare</h3>
-          <p>Browse detailed property information, photos, and compare different options</p>
+          <h3>View &amp; Compare</h3>
+          <p>Browse detailed listings with photos, amenities, and neighbourhood info</p>
         </div>
         <div class="step-item">
           <div class="step-number">3</div>
-          <h3>Connect & Move In</h3>
-          <p>Contact property owners directly and schedule viewings to find your perfect home</p>
+          <h3>Connect &amp; Move In</h3>
+          <p>Enquire directly and arrange a viewing — then move in on your terms</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
+  <!-- ── Footer ──────────────────────────────────────────────── -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-section">
-          <h3>House Hunting</h3>
-          <p>Your trusted partner in finding the perfect rental home.</p>
+          <h3>🏠 HouseHunting</h3>
+          <p>Your trusted partner in finding the perfect rental home across South Africa.</p>
         </div>
-
         <div class="footer-section">
-          <h4>Quick Links</h4>
+          <h4>Navigate</h4>
           <ul>
-            <li><a (click)="scrollToSection('home')">Home</a></li>
-            <li><a (click)="scrollToSection('search')">Search</a></li>
-            <li><a (click)="scrollToSection('about')">About</a></li>
-            <li><a (click)="scrollToSection('contact')">Contact</a></li>
+            <li><a (click)="navigateTo('/home')">Home</a></li>
+            <li><a (click)="navigateTo('/properties')">Browse Properties</a></li>
+            <li><a (click)="navigateTo('/contact')">Contact Us</a></li>
           </ul>
         </div>
-
         <div class="footer-section">
-          <h4>Legal</h4>
+          <h4>Account</h4>
           <ul>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Cookie Policy</a></li>
+            <li><a (click)="navigateTo('/sign-in')">Sign In</a></li>
+            <li><a (click)="navigateTo('/sign-up')">Register</a></li>
+            <li><a (click)="navigateTo('/owner-dashboard')">List a Property</a></li>
           </ul>
         </div>
-
         <div class="footer-section">
           <h4>Follow Us</h4>
           <div class="social-links">
-            <a href="#" class="social-link">Facebook</a>
-            <a href="#" class="social-link">Twitter</a>
-            <a href="#" class="social-link">Instagram</a>
-            <a href="#" class="social-link">LinkedIn</a>
+            <a href="#" class="social-link">📘 Facebook</a>
+            <a href="#" class="social-link">🐦 Twitter / X</a>
+            <a href="#" class="social-link">📸 Instagram</a>
+            <a href="#" class="social-link">💼 LinkedIn</a>
           </div>
         </div>
       </div>
-
       <div class="footer-bottom">
-        <p>&copy; 2025 House Hunting. All rights reserved.</p>
+        <p>&copy; 2025 HouseHunting. All rights reserved.</p>
       </div>
     </div>
   </footer>
+
 </div>

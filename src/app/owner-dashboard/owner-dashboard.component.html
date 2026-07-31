@@ -121,9 +121,24 @@
         <!-- Description -->
         <div class="form-row">
           <div class="form-group full">
-            <label>Description *</label>
-            <textarea formControlName="description" rows="3" placeholder="Describe the property…"></textarea>
+            <div class="desc-label-row">
+              <label>Description *</label>
+              <button
+                type="button"
+                class="btn-ai"
+                (click)="generateDescription()"
+                [disabled]="isGeneratingDesc"
+                title="Auto-generate with AI (Ollama)"
+              >
+                <span *ngIf="!isGeneratingDesc">✨ AI Generate</span>
+                <span *ngIf="isGeneratingDesc" class="ai-dots">
+                  <span></span><span></span><span></span>
+                </span>
+              </button>
+            </div>
+            <textarea formControlName="description" rows="4" placeholder="Describe the property — or click ✨ AI Generate above…"></textarea>
             <span class="field-error" *ngIf="isFieldInvalid('description')">{{ getFieldError('description') }}</span>
+            <span class="ai-error" *ngIf="aiError">⚠️ {{ aiError }}</span>
           </div>
         </div>
 
